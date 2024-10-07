@@ -64,14 +64,20 @@ const App: React.FC = () => {
   };
 
   const handleGuess = () => {
+    if (isGameOver) return; // Prevent any action if the game is over
+
     if (userGuess.toLowerCase() === currentSong.title.toLowerCase()) {
       setScore(score + 1);
       selectRandomSong();
     } else {
-      setLives(lives - 1);
-      if (lives === 1) {  // This was the last life
-        setIsGameOver(true);
-      } else if (revealedLyrics.length < currentSong.lyrics.length) {
+      setLives(prevLives => {
+        const newLives = Math.max(prevLives - 1, 0); // Ensure lives don't go below 0
+        if (newLives === 0) {
+          setIsGameOver(true);
+        }
+        return newLives;
+      });
+      if (lives > 1 && revealedLyrics.length < currentSong.lyrics.length) {
         setRevealedLyrics([...revealedLyrics, currentSong.lyrics[revealedLyrics.length]]);
       }
     }
@@ -79,7 +85,7 @@ const App: React.FC = () => {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !isGameOver) {
       handleGuess();
     }
   };
@@ -131,16 +137,19 @@ const App: React.FC = () => {
               <p key={index}>{line}</p>
             ))}
           </div>
-          <div className="guess-area">
-            <input
-              type="text"
-              value={userGuess}
-              onChange={(e) => setUserGuess(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter your guess"
-            />
-            <button onClick={handleGuess}>Guess</button>
-          </div>
+          {gameMode && !isGameOver && (
+            <div className="guess-area">
+              <input
+                type="text"
+                value={userGuess}
+                onChange={(e) => setUserGuess(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter your guess"
+                disabled={isGameOver}
+              />
+              <button onClick={handleGuess} disabled={isGameOver}>Guess</button>
+            </div>
+          )}
           {isGameOver && (
             <GameOverPopup
               score={score}
