@@ -64,3 +64,30 @@ h1 {
 .guess-area button:hover {
   background-color: #2980b9; /* Darker shade on hover, as before */
 }
+
+.game-over-popup {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.game-over-popup h2 {
+  margin-top: 0;
+}
+
+.game-over-popup button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.game-over-popup button:hover {
+  background-color: #2980b9;
+}
