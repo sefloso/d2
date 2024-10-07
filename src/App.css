@@ -1,0 +1,66 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #2c3e50;
+}
+
+.game-modes button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.game-modes button:hover {
+  background-color: #2980b9;
+}
+
+
+.game-area {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color: #000000; /* High contrast black text on white background */
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: #000000; /* Ensure high contrast for game info text */
+}
+
+.lyrics-area p {
+  color: #000000; /* High contrast for lyrics text */
+}
+
+.guess-area input {
+  color: #000000; /* High contrast for user input text */
+  background-color: #ffffff; /* Ensure input background is white */
+}
+
+.guess-area button {
+  background-color: #3498db; /* Keeping the existing button color */
+  color: #ffffff; /* High contrast white text on button */
+}
+
+.guess-area button:hover {
+  background-color: #2980b9; /* Darker shade on hover, as before */
+}
