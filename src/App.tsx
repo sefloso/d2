@@ -41,7 +41,6 @@ const GameOverPopup: React.FC<GameOverPopupProps> = ({ score, onPlayAgain, onRet
 const App: React.FC = () => {
   const [gameMode, setGameMode] = useState<'30sec' | '1min' | '5min' | null>(null);
   const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(5);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [currentSong, setCurrentSong] = useState(dummySongs[0]);
   const [revealedLyrics, setRevealedLyrics] = useState<string[]>([]);
@@ -51,7 +50,6 @@ const App: React.FC = () => {
   const startGame = (mode: '30sec' | '1min' | '5min') => {
     setGameMode(mode);
     setScore(0);
-    setLives(5);
     setTimeRemaining(mode === '30sec' ? 30 : mode === '1min' ? 60 : 300);
     selectRandomSong();
     setIsGameOver(false);
@@ -64,20 +62,21 @@ const App: React.FC = () => {
   };
 
   const handleGuess = () => {
-    if (isGameOver) return; // Prevent any action if the game is over
+    if (isGameOver) return;
 
-    if (userGuess.toLowerCase() === currentSong.title.toLowerCase()) {
-      setScore(score + 1);
+    const trimmedGuess = userGuess.trim();
+    if (trimmedGuess === '') {
+      setUserGuess('');
+      return;
+    }
+
+    if (trimmedGuess.toLowerCase() === currentSong.title.toLowerCase()) {
+      setScore(prevScore => prevScore + 1);
+      setTimeRemaining(prevTime => Math.min(prevTime + 3, getInitialTime())); // Add 3 seconds, but don't exceed initial time
       selectRandomSong();
     } else {
-      setLives(prevLives => {
-        const newLives = Math.max(prevLives - 1, 0); // Ensure lives don't go below 0
-        if (newLives === 0) {
-          setIsGameOver(true);
-        }
-        return newLives;
-      });
-      if (lives > 1 && revealedLyrics.length < currentSong.lyrics.length) {
+      setTimeRemaining(prevTime => Math.max(prevTime - 3, 0)); // Subtract 1 second, but don't go below 0
+      if (revealedLyrics.length < currentSong.lyrics.length) {
         setRevealedLyrics([...revealedLyrics, currentSong.lyrics[revealedLyrics.length]]);
       }
     }
@@ -99,16 +98,20 @@ const App: React.FC = () => {
     setIsGameOver(false);
   };
 
+  const getInitialTime = () => {
+    return gameMode === '30sec' ? 30 : gameMode === '1min' ? 60 : 300;
+  };
+
   useEffect(() => {
     let timer: number;
     if (gameMode && timeRemaining > 0 && !isGameOver) {
       timer = window.setInterval(() => {
-        setTimeRemaining(time => {
-          if (time === 1) {
+        setTimeRemaining(prevTime => {
+          if (prevTime === 1) {
             setIsGameOver(true);
             return 0;
           }
-          return time - 1;
+          return prevTime - 1;
         });
       }, 1000);
     }
@@ -129,28 +132,27 @@ const App: React.FC = () => {
         <div className="game-area">
           <div className="game-info">
             <p>Score: {score}</p>
-            <p>Lives: {lives}</p>
             <p>Time Remaining: {timeRemaining}s</p>
           </div>
-          <div className="lyrics-area">
-            {revealedLyrics.map((line, index) => (
-              <p key={index}>{line}</p>
-            ))}
-          </div>
-          {gameMode && !isGameOver && (
-            <div className="guess-area">
-              <input
-                type="text"
-                value={userGuess}
-                onChange={(e) => setUserGuess(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter your guess"
-                disabled={isGameOver}
-              />
-              <button onClick={handleGuess} disabled={isGameOver}>Guess</button>
-            </div>
-          )}
-          {isGameOver && (
+          {!isGameOver ? (
+            <>
+              <div className="lyrics-area">
+                {revealedLyrics.map((line, index) => (
+                  <p key={index}>{line}</p>
+                ))}
+              </div>
+              <div className="guess-area">
+                <input
+                  type="text"
+                  value={userGuess}
+                  onChange={(e) => setUserGuess(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Enter your guess"
+                />
+                <button onClick={handleGuess}>Guess</button>
+              </div>
+            </>
+          ) : (
             <GameOverPopup
               score={score}
               onPlayAgain={handlePlayAgain}
