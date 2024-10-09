@@ -1,51 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// Dummy song data
-const dummySongs = [
-  {
-    title: "This Year",
-    lyrics: [
-      "I broke free on a Saturday morning",
-      "I put the pedal to the floor",
-      "Headed north on Mills Avenue",
-      "And listened to the engine roar"
-    ]
-  },
-  {
-    title: "No Children",
-    lyrics: [
-      "I hope that our few remaining friends",
-      "Give up on trying to save us",
-      "I hope we come up with a fail-safe plot",
-      "To piss off the dumb few that forgave us"
-    ]
-  }
-];
-
-interface GameOverPopupProps {
-  score: number;
-  onPlayAgain: () => void;
-  onReturnHome: () => void;
+interface Song {
+  title: string;
+  lyrics: string[];
 }
-
-const GameOverPopup: React.FC<GameOverPopupProps> = ({ score, onPlayAgain, onReturnHome }) => (
-  <div className="game-over-popup">
-    <h2>Game Over!</h2>
-    <p>Your final score: {score}</p>
-    <button onClick={onPlayAgain}>Play Again</button>
-    <button onClick={onReturnHome}>Return to Home</button>
-  </div>
-);
 
 const App: React.FC = () => {
   const [gameMode, setGameMode] = useState<'30sec' | '1min' | '5min' | null>(null);
   const [score, setScore] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [currentSong, setCurrentSong] = useState(dummySongs[0]);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [revealedLyrics, setRevealedLyrics] = useState<string[]>([]);
   const [userGuess, setUserGuess] = useState('');
   const [isGameOver, setIsGameOver] = useState(false);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [incorrectGuesses, setIncorrectGuesses] = useState(0);
+
+  useEffect(() => {
+    fetch('/cleaned_mountain_goats_songs.json')
+      .then(response => response.json())
+      .then(data => setSongs(data));
+  }, []);
 
   const startGame = (mode: '30sec' | '1min' | '5min') => {
     setGameMode(mode);
@@ -53,16 +29,20 @@ const App: React.FC = () => {
     setTimeRemaining(mode === '30sec' ? 30 : mode === '1min' ? 60 : 300);
     selectRandomSong();
     setIsGameOver(false);
+    setIncorrectGuesses(0);
   };
 
   const selectRandomSong = () => {
-    const randomIndex = Math.floor(Math.random() * dummySongs.length);
-    setCurrentSong(dummySongs[randomIndex]);
-    setRevealedLyrics([dummySongs[randomIndex].lyrics[0]]);
+    if (songs.length > 0) {
+      const randomIndex = Math.floor(Math.random() * songs.length);
+      setCurrentSong(songs[randomIndex]);
+      setRevealedLyrics([songs[randomIndex].lyrics[0]]);
+      setIncorrectGuesses(0);
+    }
   };
 
   const handleGuess = () => {
-    if (isGameOver) return;
+    if (isGameOver || !currentSong) return;
 
     const trimmedGuess = userGuess.trim();
     if (trimmedGuess === '') {
@@ -72,12 +52,19 @@ const App: React.FC = () => {
 
     if (trimmedGuess.toLowerCase() === currentSong.title.toLowerCase()) {
       setScore(prevScore => prevScore + 1);
-      setTimeRemaining(prevTime => Math.min(prevTime + 3, getInitialTime())); // Add 3 seconds, but don't exceed initial time
+      setTimeRemaining(prevTime => Math.min(prevTime + 3, getInitialTime()));
       selectRandomSong();
     } else {
-      setTimeRemaining(prevTime => Math.max(prevTime - 3, 0)); // Subtract 1 second, but don't go below 0
-      if (revealedLyrics.length < currentSong.lyrics.length) {
-        setRevealedLyrics([...revealedLyrics, currentSong.lyrics[revealedLyrics.length]]);
+      setTimeRemaining(prevTime => Math.max(prevTime - 1, 0));
+      setIncorrectGuesses(prev => prev + 1);
+      
+      if (incorrectGuesses < 4) {
+        if (revealedLyrics.length < currentSong.lyrics.length) {
+          setRevealedLyrics(prevLyrics => [...prevLyrics, currentSong.lyrics[prevLyrics.length]]);
+        }
+      } else {
+        // Move to next song after 5 incorrect guesses (including the last guess with all lyrics revealed)
+        selectRandomSong();
       }
     }
     setUserGuess('');
@@ -118,6 +105,15 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, [gameMode, timeRemaining, isGameOver]);
 
+  const handleSkip = () => {
+    if (isGameOver || !currentSong) return;
+
+    // For now, we're not applying any time penalty
+    // setTimeRemaining(prevTime => Math.max(prevTime - 0, 0));
+
+    selectRandomSong();
+  };
+
   return (
     <div className="app">
       <h1>Mountain Goats Guessing Game</h1>
@@ -150,14 +146,16 @@ const App: React.FC = () => {
                   placeholder="Enter your guess"
                 />
                 <button onClick={handleGuess}>Guess</button>
+                <button onClick={handleSkip}>Skip</button>
               </div>
             </>
           ) : (
-            <GameOverPopup
-              score={score}
-              onPlayAgain={handlePlayAgain}
-              onReturnHome={handleReturnHome}
-            />
+            <div className="game-over-popup">
+              <h2>Game Over!</h2>
+              <p>Your final score: {score}</p>
+              <button onClick={handlePlayAgain}>Play Again</button>
+              <button onClick={handleReturnHome}>Return to Home</button>
+            </div>
           )}
         </div>
       )}
