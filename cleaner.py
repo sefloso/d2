@@ -1,16 +1,25 @@
-import pandas as pd
-import re
 import json
+import re
+from collections import defaultdict
 
-# Read the JSON file
-with open('mountain_goats_songs.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
+def normalize_title(title):
+    # Remove common suffixes and parenthetical information
+    patterns = [
+        r'\s*\(Demo\).*',
+        r'\s*\(Live.*?\).*',
+        r'\s*- Live.*',
+        r'\s*\(Remastered\).*',
+        r'\s*\(Acoustic\).*',
+    ]
+    
+    normalized = title
+    for pattern in patterns:
+        normalized = re.sub(pattern, '', normalized, flags=re.IGNORECASE)
+    
+    return normalized.strip()
 
-# Convert to DataFrame
-df = pd.DataFrame(data)
-
-# Function to clean lyrics
 def clean_lyrics(lyrics):
+    # ... (keep the existing clean_lyrics function)
     # Remove [Verse 1], [Chorus], etc.
     lyrics = re.sub(r'\[.*?\]', '', lyrics)
     
@@ -33,17 +42,34 @@ def clean_lyrics(lyrics):
     lines = lyrics.split('\n')
     return lines[:5]
 
-# Apply the cleaning function to the 'lyrics' column
-df['lyrics'] = df['lyrics'].apply(clean_lyrics)
+# Read the JSON file
+with open('mountain_goats_songs.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
 
-# Remove songs with empty lyrics
-df = df[df['lyrics'].apply(len) > 0]
+# Group songs by normalized title
+song_groups = defaultdict(list)
+for song in data:
+    if 'jordan lake' in song['title'].lower():
+        continue
+    normalized_title = normalize_title(song['title'])
+    song_groups[normalized_title].append(song)
 
-# Convert DataFrame back to list of dictionaries
-cleaned_data = df.to_dict('records')
+# Select the best version of each song
+cleaned_data = []
+for normalized_title, versions in song_groups.items():
+    # Sort versions by title length and select the shortest (assumed to be the original)
+    best_version = min(versions, key=lambda x: len(x['title']))
+    
+    cleaned_lyrics = clean_lyrics(best_version['lyrics'])
+    
+    if cleaned_lyrics:  # Only add songs with non-empty lyrics
+        cleaned_data.append({
+            'title': best_version['title'],
+            'lyrics': cleaned_lyrics
+        })
 
 # Save the cleaned data back to a JSON file
 with open('cleaned_mountain_goats_songs.json', 'w', encoding='utf-8') as f:
     json.dump(cleaned_data, f, ensure_ascii=False, indent=2)
 
-print("Lyrics cleaned and saved to cleaned_mountain_goats_songs.json")
+print(f"Cleaned data saved. Original count: {len(data)}, Cleaned count: {len(cleaned_data)}")
