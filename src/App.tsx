@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [incorrectGuesses, setIncorrectGuesses] = useState(0);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     fetch('/cleaned_mountain_goats_songs.json')
@@ -114,6 +115,26 @@ const App: React.FC = () => {
     selectRandomSong();
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUserGuess(value);
+
+    if (value.length > 0) {
+      const matchingSongs = songs
+        .filter(song => song.title.toLowerCase().startsWith(value.toLowerCase()))
+        .map(song => song.title)
+        .slice(0, 5);
+      setSuggestions(matchingSongs);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setUserGuess(suggestion);
+    setSuggestions([]);
+  };
+
   return (
     <div className="app">
       <h1>Mountain Goats Guessing Game</h1>
@@ -138,13 +159,24 @@ const App: React.FC = () => {
                 ))}
               </div>
               <div className="guess-area">
-                <input
-                  type="text"
-                  value={userGuess}
-                  onChange={(e) => setUserGuess(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Enter your guess"
-                />
+                <div className="search-container">
+                  <input
+                    type="text"
+                    value={userGuess}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter your guess"
+                  />
+                  {suggestions.length > 0 && (
+                    <ul className="suggestions">
+                      {suggestions.map((suggestion, index) => (
+                        <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+                          {suggestion}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <button onClick={handleGuess}>Guess</button>
                 <button onClick={handleSkip}>Skip</button>
               </div>
