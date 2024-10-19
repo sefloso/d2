@@ -49,7 +49,11 @@ with open('mountain_goats_songs.json', 'r', encoding='utf-8') as f:
 # Group songs by normalized title
 song_groups = defaultdict(list)
 for song in data:
+    # remove jordan lake sessions
     if 'jordan lake' in song['title'].lower():
+        continue
+    # remove instrumental songs
+    elif 'ContributorsThis song is an instrumental' in song['lyrics']:
         continue
     normalized_title = normalize_title(song['title'])
     song_groups[normalized_title].append(song)

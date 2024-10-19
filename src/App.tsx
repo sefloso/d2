@@ -42,10 +42,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleGuess = () => {
+  const handleGuess = (guessValue: string = userGuess) => {
     if (isGameOver || !currentSong) return;
 
-    const trimmedGuess = userGuess.trim();
+    const trimmedGuess = guessValue.trim();
     if (trimmedGuess === '') {
       setUserGuess('');
       return;
@@ -64,11 +64,11 @@ const App: React.FC = () => {
           setRevealedLyrics(prevLyrics => [...prevLyrics, currentSong.lyrics[prevLyrics.length]]);
         }
       } else {
-        // Move to next song after 5 incorrect guesses (including the last guess with all lyrics revealed)
         selectRandomSong();
       }
     }
     setUserGuess('');
+    setSuggestions([]);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -131,8 +131,7 @@ const App: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setUserGuess(suggestion);
-    setSuggestions([]);
+    handleGuess(suggestion);
   };
 
   return (
@@ -177,7 +176,7 @@ const App: React.FC = () => {
                     </ul>
                   )}
                 </div>
-                <button onClick={handleGuess}>Guess</button>
+                <button onClick={() => handleGuess()}>Guess</button>
                 <button onClick={handleSkip}>Skip</button>
               </div>
             </>
