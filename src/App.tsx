@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import logo from './assets/d.jfif';
 
 interface Song {
   title: string;
@@ -77,13 +78,28 @@ const App: React.FC = () => {
     }
   };
 
-  const handlePlayAgain = () => {
-    startGame(gameMode!);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUserGuess(value);
+
+    if (value.length > 0) {
+      const matchingSongs = songs
+        .filter(song => song.title.toLowerCase().startsWith(value.toLowerCase()))
+        .map(song => song.title)
+        .slice(0, 5);
+      setSuggestions(matchingSongs);
+    } else {
+      setSuggestions([]);
+    }
   };
 
-  const handleReturnHome = () => {
-    setGameMode(null);
-    setIsGameOver(false);
+  const handleSuggestionClick = (suggestion: string) => {
+    handleGuess(suggestion);
+  };
+
+  const handleSkip = () => {
+    if (isGameOver || !currentSong) return;
+    selectRandomSong();
   };
 
   const getInitialTime = () => {
@@ -106,43 +122,18 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, [gameMode, timeRemaining, isGameOver]);
 
-  const handleSkip = () => {
-    if (isGameOver || !currentSong) return;
-
-    // For now, we're not applying any time penalty
-    // setTimeRemaining(prevTime => Math.max(prevTime - 0, 0));
-
-    selectRandomSong();
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUserGuess(value);
-
-    if (value.length > 0) {
-      const matchingSongs = songs
-        .filter(song => song.title.toLowerCase().startsWith(value.toLowerCase()))
-        .map(song => song.title)
-        .slice(0, 5);
-      setSuggestions(matchingSongs);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    handleGuess(suggestion);
-  };
-
   return (
     <div className="app">
-      <h1>Mountain Goats Guessing Game</h1>
+      <h1>darnielledle</h1>
+      <div className="logo-container">
+        <img src={logo} alt="Mountain Goats Game Logo" ></img>
+      </div>
       {!gameMode ? (
         <div className="game-modes">
-          <h2>Select a Game Mode:</h2>
-          <button onClick={() => startGame('30sec')}>30 Seconds</button>
-          <button onClick={() => startGame('1min')}>1 Minute</button>
-          <button onClick={() => startGame('5min')}>5 Minutes</button>
+          <h2>select a game mode:</h2>
+          <button className="btn" onClick={() => startGame('30sec')}>thirty seconds</button>
+          <button className="btn" onClick={() => startGame('1min')}>one minute</button>
+          <button className="btn" onClick={() => startGame('5min')}>five minutes</button>
         </div>
       ) : (
         <div className="game-area">
@@ -184,8 +175,8 @@ const App: React.FC = () => {
             <div className="game-over-popup">
               <h2>Game Over!</h2>
               <p>Your final score: {score}</p>
-              <button onClick={handlePlayAgain}>Play Again</button>
-              <button onClick={handleReturnHome}>Return to Home</button>
+              <button onClick={() => startGame(gameMode)}>Play Again</button>
+              <button onClick={() => setGameMode(null)}>Return to Home</button>
             </div>
           )}
         </div>

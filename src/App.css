@@ -1,148 +1,139 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f0f0f0;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+    background-color: #f2f2f2;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .app {
-  max-width: 800px;
-  width: 100%;
-  padding: 20px;
-  text-align: center;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-h1 {
-  color: #2c3e50;
+h1, h2, h3 {
+    color: #84a9ac;
 }
 
-.game-modes button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+p {
+    color: #333;
 }
 
-.game-modes button:hover {
-  background-color: #2980b9;
+a {
+    color: #c99f7e;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #923737;
+}
+
+.btn, button {
+    background-color: #84a9ac;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.game-modes {
+    text-align: center;
 }
 
 .game-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  color: #000000; /* High contrast black text on white background */
-}
-
-.game-info {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 20px;
-  color: #000000; /* Ensure high contrast for game info text */
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .lyrics-area {
-  width: 100%;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 20px;
-  text-align: center;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .guess-area {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.guess-area input {
-  flex-grow: 1;
-  max-width: 300px;
-  color: #000000; /* High contrast for user input text */
-  background-color: #ffffff; /* Ensure input background is white */
-}
-
-.guess-area button {
-  background-color: #3498db; /* Keeping the existing button color */
-  color: #ffffff; /* High contrast white text on button */
-}
-
-.guess-area button:hover {
-  background-color: #2980b9; /* Darker shade on hover, as before */
-}
-
-.game-over-popup {
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-.game-over-popup h2 {
-  margin-top: 0;
-}
-
-.game-over-popup button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.game-over-popup button:hover {
-  background-color: #2980b9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 .search-container {
-  position: relative;
-  width: 100%;
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #84a9ac;
+    border-radius: 5px;
 }
 
 .suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-top: none;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1;
 }
 
 .suggestions li {
-  padding: 10px;
-  cursor: pointer;
+    padding: 10px;
+    cursor: pointer;
 }
 
 .suggestions li:hover {
-  background-color: #f0f0f0;
+    background-color: #f0f0f0;
+}
+
+.game-over-popup {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-container img {
+    max-width: 250px;
+    height: auto;
 }
